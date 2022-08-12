@@ -1,0 +1,159 @@
+country,year,deaths
+Vietnam,2018,569338
+Vietnam,2019,556015
+Vietnam,2020,583751
+Iraq,2016,"140,011"
+Iraq,2017,"142,766"
+Iraq,2018,"140,321"
+Iraq,2019,"140,621"
+Iraq,2020,"224,279"
+Kenya,2015,"200,205"
+Kenya,2016,"189,930"
+Kenya,2017,"190,877"
+Kenya,2018,"192,019"
+Kenya,2019,"191,495"
+Kenya,2020,"184,185"
+Grenada,2015,869
+Grenada,2016,898
+Grenada,2017,885
+Grenada,2018,965
+Grenada,2019,981
+Grenada,2020,776
+Rwanda,2019,"23,791"
+Rwanda,2020,"22,634"
+Sri Lanka,2016,"130,765"
+Sri Lanka,2017,"139,822"
+Sri Lanka,2018,"139,498"
+Sri Lanka,2019,"146,053"
+Sri Lanka,2020,"132,431"
+Sri Lanka,2021,"163,936"
+Ivory Coast,2015,"47,065"
+Ivory Coast,2016,"45,995"
+Ivory Coast,2017,"44,813"
+Ivory Coast,2018,"46,385"
+Ivory Coast,2019,"51,509"
+Ivory Coast,2020,"53,688"
+Saint Kitts and Nevis,2015,NA
+Saint Kitts and Nevis,2016,NA
+Saint Kitts and Nevis,2017,376
+Saint Kitts and Nevis,2018,400
+Saint Kitts and Nevis,2019,366
+Saint Kitts and Nevis,2020,379
+Honduras,2015,"29,601"
+Honduras,2016,"26,438"
+Honduras,2017,"24,836"
+Honduras,2018,"29,521"
+Honduras,2019,"29,479"
+Honduras,2020,"28,219"
+Honduras,2021,"45,722"
+American Samoa,2015,314
+American Samoa,2016,280
+American Samoa,2017,310
+American Samoa,2018,298
+American Samoa,2019,278
+American Samoa,2020,322
+Samoa,2016,2022
+Samoa,2017,1042
+Samoa,2018,1113
+Samoa,2019,1712
+Samoa,2020,1908
+St. Vincent and the Grenadines,2016,930
+St. Vincent and the Grenadines,2017,911
+St. Vincent and the Grenadines,2018,965
+St. Vincent and the Grenadines,2019,1023
+St. Vincent and the Grenadines,2020,1046
+Cayman Islands,2015,170
+Cayman Islands,2016,193
+Cayman Islands,2017,216
+Cayman Islands,2018,214
+Cayman Islands,2019,250
+Cayman Islands,2020,215
+China,2015,9779648.2
+China,2016,9801932.8
+China,2017,9884776.6
+China,2018,9950302.8
+China,2019,9997467.2
+China,2020,9983688.4
+China,2021,10142468
+Nicaragua,2015,23540
+Nicaragua,2016,23738
+Nicaragua,2017,24300
+Nicaragua,2018,24296
+Nicaragua,2019,25338
+Nicaragua,2020,33650
+Nicaragua,2021,33582
+Mauritius,2015,9747
+Mauritius,2016,10174
+Mauritius,2017,10140
+Mauritius,2018,10787
+Mauritius,2019,11174
+Mauritius,2020,11060
+Mauritius,2021,13274
+Aruba,2015,687
+Aruba,2016,789
+Aruba,2017,717
+Aruba,2018,730
+Aruba,2019,671
+Aruba,2020,743
+Aruba,2021,964
+Bosnia,2020,42803
+Bosnia,2021,48503
+Curacao,2015,1398
+Curacao,2016,1482
+Curacao,2017,1420
+Curacao,2018,1399
+Curacao,2019,1387
+Curacao,2020,1440
+Curacao,2021,1687
+Costa Rica,2015,21038
+Costa Rica,2016,22601
+Costa Rica,2017,23246
+Costa Rica,2018,23762
+Costa Rica,2019,24292
+Costa Rica,2020,26209
+Costa Rica,2021,31081
+Jordan,2016,28880
+Jordan,2021,39333
+Palau,2015,136
+Palau,2016,175
+Palau,2017,183
+Palau,2018,143
+Palau,2019,192
+Palau,2020,148
+Palau,2021,170
+Andorra,2015,282
+Andorra,2016,310
+Andorra,2017,323
+Andorra,2018,335
+Andorra,2019,301
+Andorra,2020,419
+Andorra,2021,386
+Cuba,2021,167645
+French Polynesia,2021,2274
+Bahrain,2015,2787
+Bahrain,2016,2858
+Bahrain,2017,2902
+Bahrain,2018,3052
+Bahrain,2019,3010
+Bahrain,2020,3488
+Togo,2015,7018
+Togo,2016,7182
+Togo,2017,7217
+Togo,2018,8318
+Togo,2019,9006
+Tajikistan,2015,33562
+Tajikistan,2016,34134
+Tajikistan,2017,32027
+Tajikistan,2018,32699
+Tajikistan,2019,33537
+Tajikistan,2020,42626
+Tajikistan,2021,39016
+UAE,2015,8755
+UAE,2016,8988
+UAE,2017,8826
+UAE,2018,8784
+UAE,2019,9006
+Palestine,2018,12296
+Palestine,2019,12602
+Palestine,2020,14106
+Palestine,2021,17273
