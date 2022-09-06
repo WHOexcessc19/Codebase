@@ -13,10 +13,16 @@ pacman::p_load(data.table, lubridate, tidyr, dplyr, INLA, xlsx)
 
 load("mf.df.Rda")
 
-get.intervals <- function(model.lab){
+get.intervals <- function(){
+  
+  model.lab <- "Model All"
   
   mf.df <- mf.df %>% mutate(months = month + 12*(year - 2020)) %>%
-    arrange(Country, months)
+    mutate(Country = ifelse(Country == "CÃ´te d'Ivoire","Côte d'Ivoire", Country)) %>% 
+    arrange(Country, months) %>% mutate(rowid = 1:n())
+  
+  isos  <- sort(unique(mf.df$Country))
+  
   
 #########################################################################
 # Function to get mean, lower and upper CI
@@ -138,7 +144,6 @@ print("Distributions of monthly mortality predictions")
   # 1) by country
   print("Cumulative excess estimates for year 2021")
   print(".................................By Country")
-  isos                    <- sort(unique(mf.df$iso3))
   country.ex.c21          <- array(dim = c(mx.m*length(isos), 3))
   country.covid.c21       <- rep(NA, mx.m*length(isos))
   r = 1
@@ -149,13 +154,13 @@ print("Distributions of monthly mortality predictions")
         country.covid.c21[r]  <- 0
       } 
       if (m == 13){
-        rows                  <- mf.df %>% filter(year == 2021 & months <= m & iso3 == reg) %>% pull(rowid)
+        rows                  <- mf.df %>% filter(year == 2021 & months <= m & Country == reg) %>% pull(rowid)
         country.ex.c21[r,]    <- get.dist(excess.samps[rows,])
         country.covid.c21[r]  <- sum(rep.covid[rows,1])
       }
       
       if (m >= 14){
-        rows                  <- mf.df %>% filter(year == 2021 & months <= m & iso3 == reg) %>% pull(rowid)
+        rows                  <- mf.df %>% filter(year == 2021 & months <= m & Country == reg) %>% pull(rowid)
         country.ex.c21[r,]    <- get.dist(apply(excess.samps[rows,], 2, sum, na.rm = T))
         country.covid.c21[r]  <- sum(rep.covid[rows,1])
       }
@@ -227,13 +232,12 @@ print("Distributions of monthly mortality predictions")
   # 1) by country
   print("Cumulative excess estimates for entire period")
   print(".................................By Country")
-  isos                    <- sort(unique(mf.df$iso3))
   country.ex.c            <- array(dim = c(mx.m*length(isos), 3))
   country.covid.c         <- rep(NA, mx.m*length(isos))
   r = 1
   for (reg in isos){
     for (m in 1:mx.m){
-      rows                <- mf.df %>% filter(months <= m & iso3 == reg) %>% pull(rowid)
+      rows                <- mf.df %>% filter(months <= m & Country == reg) %>% pull(rowid)
       if (m == 1){
         country.ex.c[r,]    <- get.dist(excess.samps[rows,])
       } else {
@@ -323,10 +327,11 @@ loc.labs <- mf.df %>% select(Country, iso3) %>% unique() %>%
                    location = c("Global", "AFRO", "AMRO", "EMRO", "EURO", "SEARO", "WPRO",
                                 "LIC", "LMIC", "UMIC", "HIC")))
 
-who.mod.ests <- get.intervals("Model All") %>% left_join(loc.labs, by = "location")
+who.mod.ests <- get.intervals() %>% left_join(loc.labs, by = "location")
 
 ##################################################################################################
 # 
+save(who.mod.ests, file = "who.mod.ests.Rda")
 
 write.xlsx(who.mod.ests,row.names = FALSE, 
            file="Estimate.Database.xlsx",
@@ -369,9 +374,22 @@ who2411 <- who.mod.ests %>%
   rename(WHO_region = Country, period = months, mean = c.fit, lwr = c.lwr, uppr = c.uppr) %>% 
   mutate(source = "WHO")
 
-reg.ests <- rbind(ihme2411, econ2411, who2411) %>% 
-  mutate(WHO_region = factor(WHO_region, levels = c("Global", "AFRO", "AMRO", "EMRO", "EURO", "SEARO", "WPRO"))) %>%
-  arrange(period, WHO_region, source) 
+regs <- c("Global", "AFRO", "AMRO", "EMRO", "EURO", "SEARO", "WPRO")
+
+rep.covid <- who.mod.ests %>% 
+  filter(location %in% regs & year == 2021 & month == 12) %>% 
+  select(location, c.covid) %>% rename(WHO_region = location, covid = c.covid)
+
+reg.ests <- rbind(ihme2411, econ2411, who2411) %>%
+  left_join(rep.covid, by = "WHO_region") %>%
+  mutate(WHO_region = factor(WHO_region, levels = regs), 
+         r.mean = round(mean/covid, 2), r.lwr = round(lwr/covid,2), 
+         r.uppr = round(uppr/covid, 2), 
+         mean = round(mean), lwr = round(lwr), uppr = round(uppr))%>%
+  arrange(period, WHO_region, source) %>%
+  select(source, WHO_region, period, 
+         mean, lwr, uppr, 
+         r.mean, r.lwr, r.uppr)
 
 write.xlsx(reg.ests,row.names = FALSE, 
            file="Model.Comparison.xlsx",

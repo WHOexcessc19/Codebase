@@ -38,7 +38,11 @@ Note: If only interested in the excess model fitting and not the data processing
 
 ## Contact
 
-Maintainer contact information: William Msemburi (msemburiw@who.int); Victoria Knutson (vknuts@uw.edu); Serge Aleshin-Guendel (aleshing@uw.edu)
+Maintainer contact information: William Msemburi (msemburiw@who.int); 
+
+## Main contributors
+
+Victoria Knutson, Serge Aleshin-Guendel, Ariel Karlinsky and William Msemburi 
 
 ## Package citations
 
