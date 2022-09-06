@@ -152,4 +152,4 @@ acm_monthly_predictions_tier1 <- acm_predictions %>%
   mutate(gamma_sd = sqrt((gamma_E ^ 2) / gamma_delta),
          gamma_sd_nb = sqrt((gamma_E_nb ^ 2) / gamma_delta_nb))
 save(acm_monthly_predictions_tier1, 
-     file = "./Generated_Data/acm_monthly_predictions_tier1.RData")
+     file = "../Generated_Data/acm_monthly_predictions_tier1.RData")

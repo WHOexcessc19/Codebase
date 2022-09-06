@@ -23,8 +23,8 @@ Note: If only interested in the excess model fitting and not the data processing
 
 ### Data Pre-Processing
 
-### Expected
- 
+* Run the `Data preparation.R` script to create the full covariate and observed excess deaths data base `/Generated_Data/mf.df.Rda`. This pulls from the observed data and also derives the expected death counts.
+
 ### Excess
 * If not interested in running the annual data ACM models or subnational data ACM models, skip to the Final_Sampling.R file and the data for the the annual/subnational model components are pre-computed in the Generated_Data folder.
 * Argentina_Estimates.R: Data processing and fitting of the subnational model for 2021 ACM in Argentina, using ACM data from the Cordoba region.

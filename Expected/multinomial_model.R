@@ -10,11 +10,11 @@ library(matrixStats)
 set.seed(42)
 
 #### Load in data ####
-load("../WilliamData/multinomial_model/multinom.expected.dfs.Rda")
-load("../WilliamData/multinomial_model/labels.Rda")
+load("../Generated_Data/multinom.expected.dfs.Rda")
+load("../Generated_Data/labels.Rda")
 load("../Generated_Data/acm_annual_predictions_tier2.RData")
 load("../Generated_Data/expected_acm_samples_tier2.RData")
-load("temperature_data_clean.RData")
+load("../Expected/temperature_data_clean.RData")
 
 #### Create a data frame containing monthly deaths counts and temperature ####
 # Don't use data from 2020 or 2021

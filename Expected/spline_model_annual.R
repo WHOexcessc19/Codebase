@@ -6,11 +6,12 @@ library(tidyverse)
 # mortality in 2020-2021
 
 #### Set the seed for this script ####
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 set.seed(42)
 
 #### Load in data ####
-load("../WilliamData/multinomial_model/multinom.expected.dfs.Rda")
-load("../WilliamData/multinomial_model/labels.Rda")
+load("../Generated_Data/multinom.expected.dfs.Rda")
+load("../Generated_Data/labels.Rda")
 AnnualMortality <- read_csv("../Imported_Data/AnnualMortality.csv")
 
 #### Clean data for use in gam function ####
