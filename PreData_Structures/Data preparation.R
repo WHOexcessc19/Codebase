@@ -17,51 +17,56 @@ select    <- dplyr::select
 # 4) GBD data by broad cause group, age, sex and year 2000 to 2019 (11/194 member states)
 # *3 and 4 are combined in "ghe.all.causes".
 
-ccodes         <- fread("https://www.dropbox.com/s/hoefrsvbk3lz389/ccodes.csv?dl=1")
-population     <- fread("https://www.dropbox.com/s/nfmbu67o03kw8o4/population.csv?dl=1")
-ghe.all.causes <- fread("https://www.dropbox.com/s/w9o2arcdo59fy1b/ghe.all.causes.csv?dl=1")
+ccodes         <- fread("ccodes.csv")
+population     <- fread("population.csv")
+ghe.all.causes <- fread("ghe.all.causes.csv")
 
 #####################################################################################################################################
-# 7) WHO COVID case and death data by date and country
+# 5) WHO COVID case and death data by date and country
 
-# Read in the WHO data and clean up some of the names
-who.covid      <- fread("https://covid19.who.int/WHO-COVID-19-global-data.csv") %>%
-  filter(Country != "Other") %>%
-  mutate(Country_code = ifelse(Country == "Namibia", "NA", Country_code)) %>%
-  left_join(ccodes, by = "Country_code") %>%
-  mutate(Country = case_when(Country == "Curaçao" ~ "Curacao",
-                             Country == "Saint Barthélemy" ~ "Saint Barthelemy",
-                             Country == "Réunion" ~ "Reunion",
-                             Country == "Kosovo[1]" ~ "Kosovo",
-                             Country %in% c("Bonaire","Saba","Sint Eustatius") ~ "Bonaire, Sint Eustatius and Saba",
-                             TRUE ~ as.character(Country)),
-         iso3    = case_when(Country == "Kosovo" ~ "XKX",
-                             Country == "Saint Martin"~ "MAF",
-                             Country == "Sint Maarten"~ "SXM",
-                             Country == "Bonaire, Sint Eustatius and Saba" ~ "BES",
-                             Country == "Curacao" ~ "CUW",
-                             Country == "Saint Barthelemy" ~ "BLM",
-                             Country == "South Sudan" ~ "SSD",
-                             Country == "Namibia" ~ "NAM",
-                             TRUE ~ as.character(iso3)),
-         date    = as.Date(Date_reported,"%y-%m-%d"),
-         WHO_region = factor(WHO_region, levels = c("AFRO","AMRO","EMRO","EURO","SEARO","WPRO"))) %>%
-  mutate(year   =  lubridate::year(lubridate::ymd(date)),
-         month  =  lubridate::month(lubridate::ymd(date))) %>%
-  group_by(Country, iso3, WHO_region, year, month) %>%
-  summarise(covid_cases  = sum(New_cases, na.rm = T),
-            covid_deaths = sum(New_deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  mutate(covid_cases = ifelse(covid_cases < 0, 0, round(covid_cases)),
-         covid_deaths = ifelse(covid_deaths < 0, 0, round(covid_deaths))) %>%
-  filter(year < 2022)
+# Read in the WHO data from https://covid19.who.int/WHO-COVID-19-global-data.csv and clean up some of the names
+# The version used in the analysis is from the 24th of March 2022. Commented out cleaning, final version loaded
+
+# who.covid      <- fread("https://covid19.who.int/WHO-COVID-19-global-data.csv") %>%
+#   filter(Country != "Other") %>%
+#   mutate(Country_code = ifelse(Country == "Namibia", "NA", Country_code)) %>%
+#   left_join(ccodes, by = "Country_code") %>%
+#   mutate(Country = case_when(Country == "Curaçao" ~ "Curacao",
+#                              Country == "Saint Barthélemy" ~ "Saint Barthelemy",
+#                              Country == "Réunion" ~ "Reunion",
+#                              Country == "Kosovo[1]" ~ "Kosovo",
+#                              Country %in% c("Bonaire","Saba","Sint Eustatius") ~ "Bonaire, Sint Eustatius and Saba",
+#                              TRUE ~ as.character(Country)),
+#          iso3    = case_when(Country == "Kosovo" ~ "XKX",
+#                              Country == "Saint Martin"~ "MAF",
+#                              Country == "Sint Maarten"~ "SXM",
+#                              Country == "Bonaire, Sint Eustatius and Saba" ~ "BES",
+#                              Country == "Curacao" ~ "CUW",
+#                              Country == "Saint Barthelemy" ~ "BLM",
+#                              Country == "South Sudan" ~ "SSD",
+#                              Country == "Namibia" ~ "NAM",
+#                              TRUE ~ as.character(iso3)),
+#          date    = as.Date(Date_reported,"%y-%m-%d"),
+#          WHO_region = factor(WHO_region, levels = c("AFRO","AMRO","EMRO","EURO","SEARO","WPRO"))) %>%
+#   mutate(year   =  lubridate::year(lubridate::ymd(date)),
+#          month  =  lubridate::month(lubridate::ymd(date))) %>%
+#   group_by(Country, iso3, WHO_region, year, month) %>%
+#   summarise(covid_cases  = sum(New_cases, na.rm = T),
+#             covid_deaths = sum(New_deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
+#   mutate(covid_cases = ifelse(covid_cases < 0, 0, round(covid_cases)),
+#          covid_deaths = ifelse(covid_deaths < 0, 0, round(covid_deaths))) %>%
+#   filter(year < 2022)
+#   fwrite(who.covid, file = "clean.who.covid.csv")
+
+who.covid         <- fread("clean.who.covid.csv")
 
 #####################################################################################################################################
 #####################################################################################################################################
-# 8)  WHO all cause mortality death data
+# 6)  WHO all cause mortality death data
 #####################################################################################################################################
 #####################################################################################################################################
 
-who.allcause <- fread("https://www.dropbox.com/s/dc71huxb0dnm26j/WHO_Allcause_Mortality_Data.csv?dl=1") %>%
+who.allcause <- fread("WHO_Allcause_Mortality_Data.csv") %>%
   mutate(sex = ifelse(sex == "", "Unknown", sex),
          time = ifelse(time_unit == "Week" & time == 53, 12,
                        ifelse(time_unit == "Week" & time < 53,
@@ -84,39 +89,46 @@ who.allcause <- fread("https://www.dropbox.com/s/dc71huxb0dnm26j/WHO_Allcause_Mo
 
 #####################################################################################################################################
 #####################################################################################################################################
-# 8) STMF Short term mortality fluctations
+# 7) STMF Short term mortality fluctations
+
+# Read in the STMF and clean up some of the names
+# The version used in the analysis is from the 24th of March 2022. Commented out cleaning, final version loaded
 #####################################################################################################################################
 #####################################################################################################################################
 
-stmf      <- fread("https://www.mortality.org/File/GetDocument/Public/STMF/Outputs/stmf.csv", skip = 2) %>%
-  select(CountryCode, Sex, Year, Week, D0_14, D15_64, D65_74, D75_84, D85p, DTotal) %>%
-  rename(year = Year, iso3 = CountryCode, sex = Sex,
-         `0-14`=D0_14,`15-64`=D15_64,`65-74`=D65_74,`75-84`=D75_84,`85+`=D85p, `total`=DTotal) %>%
-  mutate(sex = ifelse(sex=="m","Male", ifelse(sex=="f","Female","Both")),
-         time = ifelse(Week == 53, 12,
-                       lubridate::month(as.Date(paste0(year,"-",Week,"-",1),format="%Y-%U-%u"))),
-         iso3 = ifelse(iso3 %in% c("GBR_NIR","GBR_SCO","GBRTENW"),"GBR",
-                       ifelse(iso3 == "DEUTNP", "DEU",
-                              ifelse(iso3 == "FRATNP", "FRA",
-                                     ifelse(iso3 == "AUS2", "AUS",
-                                            ifelse(iso3 == "NZL_NP", "NZL", iso3)))))) %>%
-  filter(year > 2010) %>%
-  gather(age_cat, deaths, -iso3, -sex, -year, -time, -Week)
+# stmf      <- fread("https://www.mortality.org/File/GetDocument/Public/STMF/Outputs/stmf.csv", skip = 2) %>%
+#   select(CountryCode, Sex, Year, Week, D0_14, D15_64, D65_74, D75_84, D85p, DTotal) %>%
+#   rename(year = Year, iso3 = CountryCode, sex = Sex,
+#          `0-14`=D0_14,`15-64`=D15_64,`65-74`=D65_74,`75-84`=D75_84,`85+`=D85p, `total`=DTotal) %>%
+#   mutate(sex = ifelse(sex=="m","Male", ifelse(sex=="f","Female","Both")),
+#          time = ifelse(Week == 53, 12,
+#                        lubridate::month(as.Date(paste0(year,"-",Week,"-",1),format="%Y-%U-%u"))),
+#          iso3 = ifelse(iso3 %in% c("GBR_NIR","GBR_SCO","GBRTENW"),"GBR",
+#                        ifelse(iso3 == "DEUTNP", "DEU",
+#                               ifelse(iso3 == "FRATNP", "FRA",
+#                                      ifelse(iso3 == "AUS2", "AUS",
+#                                             ifelse(iso3 == "NZL_NP", "NZL", iso3)))))) %>%
+#   filter(year > 2010) %>%
+#   gather(age_cat, deaths, -iso3, -sex, -year, -time, -Week)
+# 
+# stmf <- stmf %>% mutate(time = 999) %>% rbind(stmf) %>%
+#   group_by(age_cat, iso3, sex, year, time) %>%
+#   summarise(deaths = sum(deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
+#   right_join(data.frame(age_cat = c("0-14", "15-64", "65-74", "75-84","85+", "total"),
+#                         age = c(0,15,65,75,85,999)), by = "age_cat") %>% rename(month = time) %>%
+#   mutate(source = "STMF", coverage = "National") %>% select(names(who.allcause))
+# 
+# fwrite(stmf, file = "stmf.clean.csv")
 
-stmf <- stmf %>% mutate(time = 999) %>% rbind(stmf) %>%
-  group_by(age_cat, iso3, sex, year, time) %>%
-  summarise(deaths = sum(deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  right_join(data.frame(age_cat = c("0-14", "15-64", "65-74", "75-84","85+", "total"),
-                        age = c(0,15,65,75,85,999)), by = "age_cat") %>% rename(month = time) %>%
-  mutate(source = "STMF", coverage = "National") %>% select(names(who.allcause))
+stmf   <- fread("stmf.clean.csv")
 
 #########################################################################################################################
 #########################################################################################################################
-# 9) EUROSTAT data by age and sex from 
+# 8) EUROSTAT data by age and sex from 
 # https://ec.europa.eu/eurostat/estat-navtree-portlet-prod/BulkDownloadListing?file=data/demo_r_mwk_05.tsv.gz
 #########################################################################################################################
 
-eurostat.df <- fread("https://www.dropbox.com/s/w4pqb3b35tvnpos/eurostat.csv?dl=1")
+eurostat.df <- fread("eurostat.csv")
 
 eurostat    <- eurostat.df %>%
   separate(week,c("year","week"), "W") %>%
@@ -150,162 +162,16 @@ eurostat  <- eurostat %>% mutate(time = 999) %>%
 
 #####################################################################################################################################
 #####################################################################################################################################
-# 10) WMD: Observed and expected data by week from Karlinsky et al and multiple sources (world mortality data)
-#####################################################################################################################################
-#####################################################################################################################################
+# 9) WMD: Observed and expected data by week from Karlinsky et al and multiple sources (world mortality data)
 
-wmd.dfa   <- fread("https://raw.github.com/akarlinsky/world_mortality/main/world_mortality.csv", header = T) %>%
-  filter(!(country_name %in% c("Kosovo", "Transnistria"))  &
-           time_unit != "quarterly (Solar Hijri)") %>%
-  mutate(iso3 = countrycode(country_name, "country.name", "iso3c")) %>%
-  left_join(fread("https://raw.github.com/dkobak/excess-mortality/main/baselines.csv") %>%
-              rename(country = V1, time = V2, expected = V3) %>%
-              filter(!(country %in% c("Kosovo", "Transnistria"))) %>%
-              mutate(iso3 = countrycode(country, "country.name", "iso3c"), country = NULL), by = c("iso3","time")) %>%
-  mutate(iso3 = ifelse(country_name == "Réunion", "REU", iso3), country_name = NULL) %>%
-  select(-c(iso3c))
+# baselines.csv file from "https://raw.github.com/dkobak/excess-mortality/main/baselines.csv"
+# world_mortality.csv file from "https://raw.github.com/akarlinsky/world_mortality/main/world_mortality.csv"
+# Loading clean and monthly aggregated as of the 24th March 2022
 
-# WHO data call, we only get data for IRAQ unique from the rest
-
-other.df <- fread("https://www.dropbox.com/s/dc71huxb0dnm26j/WHO_Allcause_Mortality_Data.csv?dl=1") %>%
-  mutate(sex = ifelse(sex == "", "Unknown", sex),
-         age_cat_s = ifelse(age_cat_s %in% c("0", "1-4", "0-4", "< 5"), "0-4",
-                            ifelse(age_cat_s == "total age", "total",
-                                   ifelse(age_cat_s %in% c("85-90", "90+", "85-89", "90-94", "95-100", "95+", "100+"),
-                                          "85+", age_cat_s)))) %>%
-  group_by(country, sex, year, time, time_unit, source, age_cat_s, coverage) %>%
-  summarise(deaths = sum(deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  right_join(data.frame(age_cat_s = c(paste0(seq(0,80,5),"-",seq(0,80,5)+4), "85+", "total"),
-                        age = c(seq(0,85,5), 999)), by = "age_cat_s") %>%
-  spread(sex, deaths) %>%  rename(iso3 = country) %>%
-  rowwise() %>% mutate(Both = sum(c(Female, Male, Unknown), na.rm = T)) %>% ungroup() %>%
-  mutate(source = "WHO Data Call") %>% rename(age_cat = age_cat_s) %>%
-  select(source, coverage, iso3, year, time, time_unit, age, age_cat, Female, Male, Both) %>%
-  gather(sex, deaths, -source, -coverage, -iso3, -year, -time, time_unit, -age, -age_cat) %>%
-  arrange(iso3, sex, year, time, age) %>%
-  filter(coverage == "National" &
-           !(iso3 %in% unique(wmd.dfa$iso3)) &
-           time != 999 & age == 999 & sex == "Both") %>%
-  group_by(iso3) %>%
-  mutate(time_unit = ifelse(max(time) == 12, "monthly", "weekly"),
-         expected = NA, deaths = as.numeric(deaths)) %>%
-  ungroup() %>% select(names(wmd.dfa))
-
-# SRI LANKA data  
-LKA <- fread("https://www.dropbox.com/s/pswhjdwf6pqgis2/LKA.csv?dl=1") %>% 
-  filter(sex == "T" & !is.na(iso3)) %>% 
-  mutate(time_unit = "monthly", expected = NA, sex = NULL) %>%
-  rename(deaths = val, time = month)  %>% select(names(wmd.dfa)) %>% data.table()
-
-#################################################################################################### 
-#################################################################################################### 
-# Completeness scaling factors, previously was more severe taking exact scalar
-# updated to be 100% within 10% of a 100%
-
-cmp      <- wmd.dfa %>% rbind(other.df %>% filter(iso3 == "IRQ"), LKA) %>% 
-  group_by(iso3, year) %>% summarise(wmd = sum(deaths), .groups = "drop") %>% ungroup() %>%
-  left_join(ghe.all.causes %>% group_by(iso3, year) %>% 
-              summarise(ghe = sum(val), .groups = "drop"), by = c("iso3","year")) %>%
-  mutate(scale = ifelse(wmd > ghe| is.na(ghe), 1, 
-                        ghe/wmd), wmd = NULL, ghe = NULL, 
-         scale = ifelse(scale < 1/.9 & scale > 1/1.1, 1, scale)) %>%
-  spread(year, scale) %>%
-  mutate(`2015` = ifelse(is.na(`2015`), `2018`, `2015`),
-         `2016` = ifelse(is.na(`2016`), `2018`, `2016`),
-         `2017` = ifelse(is.na(`2017`), `2018`, `2017`), 
-         `2020` = `2019`, `2021` = `2019`, `2022` = `2019`) %>% 
-  gather(year, scale, -iso3) %>% mutate(year = as.numeric(year))
-
-# Adjust the data from WMD according to scalar
-wmd.dfa <- wmd.dfa %>% rbind(other.df %>% filter(iso3 == "IRQ"), LKA) %>%
-  left_join(cmp, by = c("iso3","year")) %>%
-  mutate(deaths = deaths*scale, scale = NULL)
-
-####################################################################################################################
-# Group by monthly or weekly
-####################################################################################################################
-
-wmd.dfm <- wmd.dfa %>%
-  filter(time_unit == "monthly") %>% mutate(month = time) %>%
-  filter(!is.na(month) & year < 2022) %>% group_by(iso3, month, year) %>%
-  summarise(observed = sum(deaths, na.rm = T),
-            expected = sum(expected, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  arrange(iso3, year, month) 
-
-wmd.dfw <- wmd.dfa %>% filter(year != 0 & time_unit == "weekly") %>%
-  rename(week = time) %>%
-  group_by(iso3, week, year) %>%
-  summarise(observed = sum(deaths, na.rm = T),
-            expected = sum(expected, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  arrange(iso3, year, week)
-
-# Function to aggregate weekly data to monthly data
-
-get.smooth.month <- function(is){
-  
-  dfwa     <- wmd.dfw %>% filter(iso3 == is & year < 2022) %>% arrange(year, week) %>%
-    select(iso3, week, year, observed)
-  
-  if (nrow(dfwa) > 0){
-    df.bym <- list()
-    for (yr in unique(dfwa$year)){
-      dfwb  <- dfwa %>% filter(year == yr) %>% arrange(week)
-      
-      df.bym[[paste(yr)]] <- weekToMonth(dfwb$observed, year = as.numeric(yr), 
-                                         wkIndex = 1, wkMethod = "ISO") %>%
-        separate(yearMonth, c("year", "month"), "-") %>%  
-        mutate(iso3 = is, year = as.numeric(year), month = as.numeric(month)) %>% 
-        rename(observed = value) %>%
-        # some deaths allocated to previous year month 12 or next year month 1
-        # assume those can be mapped to current year month 1 or current year month 12
-        # respectively
-        mutate(month = ifelse(year == yr - 1, 1, ifelse(year == yr + 1, 12, month)), 
-               year = yr)
-    }
-    
-    rbindlist(df.bym) %>% group_by(iso3, year, month) %>%
-      summarise(observed = sum(observed, na.rm = T), .groups = "drop") %>%
-      ungroup() %>%
-      filter(!is.na(observed))
-  }
-}
-
-wmd.dfl <- list()
-u = 1
-for (iso in sort(unique(wmd.dfw$iso3))){
-  print(iso)
-  wmd.dfl[[u]] <- get.smooth.month(iso)
-  u = u + 1
-}
-
-obs_bymonthyear <- exp_obs_bymonthyear <- rbindlist(wmd.dfl) %>%
-  rbind(wmd.dfm  %>% arrange(iso3, year, month) %>%
-          select(iso3, month, year, observed)) %>%
-  filter(iso3 %in% unique(ghe.all.causes$iso3)) %>% filter(year > 2014 & year < 2022)
-
-acm.byyear      <- ghe.all.causes %>%
-  group_by(iso3, year) %>% 
-  summarise(deaths = sum(val), .groups = "drop") %>% ungroup()
-
-monthsl         <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-temp_celsius    <- fread("https://www.dropbox.com/s/3325xc7ihijzqke/temparature.csv?dl=1") %>%
-  filter(Year >= 2015) %>% 
-  rename(year = Year, temperature = "Temperature - (Celsius)") %>%
-  mutate(iso3 = countrycode::countrycode(Country, "country.name", "iso3c")) %>%
-  mutate(month = removeWords(Statistics, " Average")) %>%
-  mutate(month = as.numeric(factor(month, levels = monthsl))) %>%
-  select(iso3, year, month, temperature) %>% arrange(iso3, year, month)
-  
-save(exp_obs_bymonthyear, acm.byyear, temp_celsius, file = "../Generated_Data/multinom.expected.dfs.Rda")
-
-# source("../Expected/temperature_clean.R")     # sort out the temperature covariate for each country including Niue
-# source("../Expected/spline_model_monthly.R")  # fit a negative binomial spline model to the countries with monthly mortality data to get expected monthly
-# source("../Expected/spline_model_annual.R")   # fit a negative binomial spline model to the countries with only annual mortality data to get expected annual
-# source("../Expected/multinomial_model.R")     # fit a multinomial temperature model
-# to the countries with monthly mortality data to predict expected monthly
-# mortality in 2020-2021 for countries with only annual mortality data
+wmd.clean <- fread("wmd.clean.csv")
 
 #####################################################################################################################################
+# 10) Expected deaths
 
 load("../Generated_Data/acm_monthly_predictions_tier1.RData")
 load("../Generated_Data/acm_monthly_predictions_tier2.RData")
@@ -318,24 +184,8 @@ expected.out     <- rbind(acm_monthly_predictions_tier1 %>% select(iso3, year, m
 
 rm(list = c("acm_monthly_predictions_tier1", "acm_monthly_predictions_tier2"))
 
-#####################################################################################################################################
-
-wmd.df <- obs_bymonthyear %>%
+wmd.df <- wmd.clean %>%
   right_join(expected.out, by = c("iso3", "month", "year"))
-
-wmd     <- wmd.df %>%
-  filter(!is.na(observed)) %>%
-  select(iso3, month, year, observed) %>% rename(deaths = "observed")
-
-
-wmd     <- wmd %>%
-  mutate(month = 999) %>%
-  group_by(iso3, month, year) %>%
-  summarise(deaths = sum(deaths, na.rm = T), .groups = "drop") %>% ungroup() %>%
-  rbind(wmd) %>%
-  mutate(sex = "Both", source = "Karlinsky WMD", coverage = "National", age = 999, age_cat = "total") %>%
-  select(names(who.allcause))
-
 
 #####################################################################################################################################
 #####################################################################################################################################
@@ -344,28 +194,29 @@ wmd     <- wmd %>%
 #####################################################################################################################################
 
 #####################################################################################################################################
-# 11) Oxford tracker data on government policy (https://www.nature.com/articles/s41562-021-01079-8)
+# 11) Oxford tracker government policy ("https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_nat_latest.csv")
+# Using version from 24 March 2022
 
-covid_pol    <- fread("https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_nat_latest.csv")  %>%
-  rename(iso3 = CountryCode) %>%
-  mutate(year   =  lubridate::year(lubridate::ymd(Date)),
-         month  =  lubridate::month(lubridate::ymd(Date))) %>%
-  group_by(iso3, month, year) %>%
-  summarize(Stringency = median(StringencyIndex_Average, na.rm = T),
-            Government = median(GovernmentResponseIndex_Average, na.rm = T),
-            Containment = median(ContainmentHealthIndex_Average, na.rm = T),
-            Economic = mean(EconomicSupportIndex, na.rm = T), .groups = "drop") %>%
-  ungroup() %>% filter(!is.na(Stringency))
+# covid_pol    <- fread("https://github.com/OxCGRT/covid-policy-tracker/raw/master/data/OxCGRT_nat_latest.csv")  %>%
+#   rename(iso3 = CountryCode) %>%
+#   mutate(year   =  lubridate::year(lubridate::ymd(Date)),
+#          month  =  lubridate::month(lubridate::ymd(Date))) %>%
+#   group_by(iso3, month, year) %>%
+#   summarize(Stringency = median(StringencyIndex_Average, na.rm = T),
+#             Government = median(GovernmentResponseIndex_Average, na.rm = T),
+#             Containment = median(ContainmentHealthIndex_Average, na.rm = T),
+#             Economic = mean(EconomicSupportIndex, na.rm = T), .groups = "drop") %>%
+#   ungroup() %>% filter(!is.na(Stringency))
+# fwrite(covid_pol, file = "covid_pol.clean.csv")
+
+covid_pol <- fread("covid_pol.clean.csv")
 
 #####################################################################################################################################
 # 12) SDI, filter for country locations (leave out region or subnational; & Georgia in the USA)
 
-sdi.loc <- fread("https://www.dropbox.com/s/vhajcoyzw08wb8l/sdi.country.csv?dl=1")
-temp    <- tempfile(fileext = ".xlsx")
-dataURL <- "http://ghdx.healthdata.org/sites/default/files/record-attached-files/IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.XLSX"
-download.file(dataURL, destfile=temp, mode='wb')
+sdi.loc <- fread("sdi.country.csv")
 
-sdi.gbd <- readxl::read_excel(temp, skip = 1)[-c(105), ] %>%
+sdi.gbd <- readxl::read_excel("IHME_GBD_2019_SDI_1990_2019_Y2020M10D15.XLSX", skip = 1)[-c(105), ] %>%
   filter(Location %in% sdi.loc$Location & Location != "Virgin Islands" ) %>%
   mutate(iso3 = countrycode(Location, "country.name", "iso3c")) %>%
   gather(year, sdi, -Location, -iso3) %>%
@@ -376,7 +227,7 @@ sdi.gbd <- readxl::read_excel(temp, skip = 1)[-c(105), ] %>%
 #####################################################################################################################################
 # 13) Income group from World Bank, assume Cook Islands and Niue are upper middle income like Tonga and Tuvalu
 
-wbincome <- fread("https://www.dropbox.com/s/5w6522psqhy7qsg/WBG.csv?dl=1") %>%
+wbincome <- fread("WBG.csv") %>%
   select(Code, `Income group`) %>%
   rename(iso3 = Code, group = "Income group") %>%
   filter(iso3 %in% unique(population$iso3))
@@ -393,24 +244,29 @@ inc.groups <- wbincome %>%
          group = NULL)
 #####################################################################################################################################
 # 14) Our world in Data (test positivity rate, population density and life-expectancy)
+# Taken from https://covid.ourworldindata.org/data/owid-covid-data.csv
+# Version date 24 March 2022
 
-owid <- fread("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>%
-  rename(iso3 = iso_code) %>%
-  mutate(date = as.Date(date, "%Y-%m-%d")) %>%
-  select(iso3, date, gdp_per_capita, population_density, life_expectancy, positive_rate, new_tests, new_cases) %>%
-  mutate(year   =  lubridate::year(lubridate::ymd(date)),
-         month  =  lubridate::month(lubridate::ymd(date)),
-         date = NULL) %>%
-  group_by(iso3, year, month) %>%
-  summarise(population_density      = median(population_density, na.rm = T),
-            life_expectancy         = median(life_expectancy, na.rm = T),
-            positive_rate           = median(positive_rate, na.rm = T),
-       .groups = "drop") %>% ungroup()
+# owid <- fread("https://covid.ourworldindata.org/data/owid-covid-data.csv") %>%
+#   rename(iso3 = iso_code) %>%
+#   mutate(date = as.Date(date, "%Y-%m-%d")) %>%
+#   select(iso3, date, gdp_per_capita, population_density, life_expectancy, positive_rate, new_tests, new_cases) %>%
+#   mutate(year   =  lubridate::year(lubridate::ymd(date)),
+#          month  =  lubridate::month(lubridate::ymd(date)),
+#          date = NULL) %>%
+#   group_by(iso3, year, month) %>%
+#   summarise(population_density      = median(population_density, na.rm = T),
+#             life_expectancy         = median(life_expectancy, na.rm = T),
+#             positive_rate           = median(positive_rate, na.rm = T),
+#        .groups = "drop") %>% ungroup()
+# fwrite(owid, file = "owid.clean.csv")
+
+owid <- fread("owid.clean.csv")
 
 #####################################################################################################################################
 # 15) GBD2019 - by age and sex for 2019 - diabetes prevalence, cardiovascular, ncd and hiv mortality
 
-gbd_in       <- fread("https://www.dropbox.com/s/i9vckz7xgab06s6/gbd_input.csv?dl=1") %>%
+gbd_in       <- fread("gbd_input.csv") %>%
   rename(ages = age) %>%
   mutate(iso3 = countrycode::countrycode(location, "country.name", "iso3c"))
 
@@ -457,6 +313,16 @@ pop.sum <- population %>% filter(year == 2019) %>%
 #####################################################################################################################################
 # 17) Temparature by country and month
 
+monthsl         <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+
+temp_celsius    <- fread("temparature.csv") %>%
+  filter(Year >= 2015) %>% 
+  rename(year = Year, temperature = "Temperature - (Celsius)") %>%
+  mutate(iso3 = countrycode::countrycode(Country, "country.name", "iso3c")) %>%
+  mutate(month = removeWords(Statistics, " Average")) %>%
+  mutate(month = as.numeric(factor(month, levels = monthsl))) %>%
+  select(iso3, year, month, temperature) %>% arrange(iso3, year, month)
+
 temperatures    <- temp_celsius %>%
   group_by(iso3, month) %>%
   summarise(temperature = mean(temperature), .groups = "drop") %>%
@@ -465,7 +331,7 @@ temperatures    <- temp_celsius %>%
   mutate(ztemp = scale(temperature)) %>% ungroup()
 
 # Also the HDI covariate
-hdi           <- fread("https://www.dropbox.com/s/traa4v0nb4imglo/hdi.csv?dl=1") %>%
+hdi           <- fread("hdi.csv") %>%
   mutate(iso3 = countrycode::countrycode(country, "country.name", "iso3c"), hdi = 100*hdi) %>%
   select(-c(country))
 
@@ -586,18 +452,9 @@ ggplot(covp, aes(x = months, y = Containment, col = Country)) +
                              "South Africa", "India"),
               use_direct_label = FALSE, calculate_per_facet = TRUE)
 
-#####################################################################################################################################
-#####################################################################################################################################
-# 19) Create dataset of actual deaths and indexed by source
-#####################################################################################################################################
-#####################################################################################################################################
-
-actual_deaths <- rbind(who.allcause, stmf, eurostat, wmd)
-
 ########################################################################################################################
-
-today     <- Sys.Date()
-today     <- format(today, format="%B %d %Y")
+# Final datasets
+#####################################################################################################################################
 
 mf.df.in <- covariates %>%
   select(Country, iso3, WHO_region, year, income_group, high.income, upper.income,
@@ -612,27 +469,16 @@ mf.df.in <- covariates %>%
               summarise(Nx = sum(Nx), .groups = "drop"), by = c("iso3","year")) %>%
   left_join(ghe.all.causes %>% filter(year == 2019) %>% group_by(iso3) %>%
               summarise(ghe = sum(val), .groups = "drop"), by = c("iso3")) %>%
+  left_join(fread("consulted.data.csv"), by = c("iso3", "year", "month")) %>% 
+  mutate(observed = adj.ac) %>% 
   arrange(iso3, year, month)  
 
 ###########################################################################################################################
-# Load data from country consultation
-
-df.m.cs <- fread("https://www.dropbox.com/s/tmd637kyqq5lmna/df.m.cs.csv?dl=1")
-
-all.mult <- df.m.cs %>% mutate(obs.sd = NA, year = ifelse(months > 12, 2021, 2020), 
-                           month = ifelse(months > 12, months - 12, months), months = NULL) %>%
-  # Update with data from country consultation for all countries 
-  # except LBN, SVK, BOL who submitted data that do not seem plausible
-  mutate(months = month + 12*(year - 2020), 
-         change = ifelse(iso3 %in% c("LBN","SVK", "BOL", "DEU"), "no", "yes"), 
-         months = NULL) 
-
-# Final dataset
+###########################################################################################################################
+# Final dataset used in model
 
 mf.df <- mf.df.in %>%
-  left_join(all.mult, by = c("iso3", "year", "month")) %>%
   mutate(months = month + 12*(year - 2020), 
-         observed = ifelse(!is.na(adj.ac) & change == "yes", adj.ac, observed),
          expectedr = 1e5*expected/Nx, 
          observedr = 1e5*observed/Nx,
          excess = observed - expected, excessr = 1e5*excess/Nx, 
@@ -640,8 +486,7 @@ mf.df <- mf.df.in %>%
          covidr = 1e5*covid_deaths/Nx, cmr = 1e5*covid_cases/Nx, expluscov = expectedr + covidr,
          wdate = format(date_decimal(year + (month-0.1)/12), "%Y-%m-%d"),
          wdate = as.Date(wdate), 
-         positive_rate = positive_rate * 100, sdi = sdi*100, 
-         observed = ifelse(iso3 == "CAN" & months > 21, NA,observed)) %>%
+         positive_rate = positive_rate * 100, sdi = sdi*100) %>%
   rename(expectedl="expected.lwr", expectedu="expected.uppr") %>%
   select("Country", "iso3", "WHO_region", "income_group",
          "high.income", "upper.income", "Nx",
@@ -650,11 +495,11 @@ mf.df <- mf.df.in %>%
          "population_density","sdi","hdi", "eyeduc", "myeduc", "gnipc",
          "Stringency", "Government", "Containment", "Economic",
          "ncds","cardiovascular", "hiv", "over65", "under15","diabetes_allages", "positive_rate",
-         "life_expectancy", q5, q15, q30, e60, e0, "observed", "observedr", obs.sd, 
+         "life_expectancy", q5, q15, q30, e60, e0, "observed", "observedr", 
          "expected","expectedl","expectedu", "expectedr", "excess", "excessr",
          "expluscov") %>%
   arrange(iso3, year, month) %>% mutate(rowid = 1:n()) %>%
-  mutate(Country = ifelse(iso3 == "CIV", "C?te d'Ivoire", Country))
+  mutate(Country = ifelse(iso3 == "CIV", "Côte d'Ivoire", Country))
 
 # Save input file
 save(mf.df, file = "../Generated_Data/mf.df.Rda")
