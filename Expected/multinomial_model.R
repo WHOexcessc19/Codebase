@@ -7,6 +7,7 @@ library(matrixStats)
 # mortality in 2020-2021 for countries with only annual mortality data
 
 #### Set the seed for this script ####
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 set.seed(42)
 
 #### Load in data ####

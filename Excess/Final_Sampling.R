@@ -6,18 +6,21 @@ library(tidyverse)
 library(INLA) # make sure you have installed the latest testing branch of INLA package
 library(posterior)
 
+#### Set the seed for this script ####
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 ### load in general country and covariate data
-load("Generated_Data/mf.df.Rda")
+load("../Generated_Data/mf.df.Rda")
 ### load in expecteds estimates
-load("Generated_Data/acm_monthly_predictions_tier1.RData")
-load("Generated_Data/acm_monthly_predictions_tier2.RData")
+load("../Generated_Data/acm_monthly_predictions_tier1.RData")
+load("../Generated_Data/acm_monthly_predictions_tier2.RData")
 ### load in subnational and mixed data estimates
-load("Generated_Data/Argentina.est.RData")
-load("Generated_Data/India.est.RData")
-load("Generated_Data/Indonesia.est.RData")
-load("Generated_Data/Turkey.est.RData")
-load("Generated_Data/China.est.RData")
-load("Generated_Data/AnnualData.Ests.RData")
+load("../Generated_Data/Argentina.est.RData")
+load("../Generated_Data/India.est.RData")
+load("../Generated_Data/Indonesia.est.RData")
+load("../Generated_Data/Turkey.est.RData")
+load("../Generated_Data/China.est.RData")
+load("../Generated_Data/AnnualData.Ests.RData")
 
 ### mutate country, covariate dataframe for covariate model, and standardize relevant variables
 df.inla <- mf.df %>% 
