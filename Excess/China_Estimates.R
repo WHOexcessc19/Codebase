@@ -53,7 +53,7 @@ df.inla <- df.inla %>%
 Panama.ind = which(df.inla$Country=="Panama")
 Panama.slope = (df.inla$observed[Panama.ind[6]]-df.inla$observed[Panama.ind[3]])/(6-3)
 new.Panama.month3and4 = c(sum(df.inla$observed[Panama.ind[4:5]])/2-Panama.slope/2,sum(df.inla$observed[Panama.ind[4:5]])/2+Panama.slope/2)
-df.inla$observed[Panama.ind[4:5]]= new.Panama.month3and4
+df.inla$observed[Panama.ind[4:5]]= as.integer(new.Panama.month3and4)
 
 ### Set Up INLA Covariate Model
 

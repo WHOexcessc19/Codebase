@@ -15,7 +15,9 @@ This repository contains code for fitting of the excess mortality models develop
 ## Dependencies
 
 * R version 3.6.3 and the following R packages: "tidyverse", "posterior", "INLA", "zoo", "readxl", "cmdstanr", "gridExtra", "mgcv", "matrixStats".
-  * IMPORTANT: The INLA package should be installed as the latest testing (not stable) branch, with instructions on the https://www.r-inla.org/download-install website
+  * IMPORTANT: The INLA package should be installed as the testing (not stable) branch version 22.05.03, with instructions on the https://www.r-inla.org/download-install website
+  * can be installed via the remotes package in R using the command, 
+  `remotes::install_version("INLA", version="22.05.03",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/testing"), dep=TRUE)`
 	* To install any missing packages, run `sapply(setdiff(c("tidyverse", "posterior", "zoo", "readxl", "cmdstanr", "gridExtra", "mgcv", "matrixStats"), installed.packages()), install.packages)`
 
 ## Workflow

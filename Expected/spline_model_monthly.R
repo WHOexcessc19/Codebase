@@ -6,6 +6,7 @@ library(tidyverse)
 # mortality in 2020-2021
 
 #### Set the seed for this script ####
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 set.seed(42)
 
 #### Load in data ####

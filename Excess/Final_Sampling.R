@@ -6,18 +6,21 @@ library(tidyverse)
 library(INLA) # make sure you have installed the latest testing branch of INLA package
 library(posterior)
 
+#### Set the seed for this script ####
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 ### load in general country and covariate data
-load("Generated_Data/mf.df.Rda")
+load("../Generated_Data/mf.df.Rda")
 ### load in expecteds estimates
-load("Generated_Data/acm_monthly_predictions_tier1.RData")
-load("Generated_Data/acm_monthly_predictions_tier2.RData")
+load("../Generated_Data/acm_monthly_predictions_tier1.RData")
+load("../Generated_Data/acm_monthly_predictions_tier2.RData")
 ### load in subnational and mixed data estimates
-load("Generated_Data/Argentina.est.RData")
-load("Generated_Data/India.est.RData")
-load("Generated_Data/Indonesia.est.RData")
-load("Generated_Data/Turkey.est.RData")
-load("Generated_Data/China.est.RData")
-load("Generated_Data/AnnualData.Ests.RData")
+load("../Generated_Data/Argentina.est.RData")
+load("../Generated_Data/India.est.RData")
+load("../Generated_Data/Indonesia.est.RData")
+load("../Generated_Data/Turkey.est.RData")
+load("../Generated_Data/China.est.RData")
+load("../Generated_Data/AnnualData.Ests.RData")
 
 ### mutate country, covariate dataframe for covariate model, and standardize relevant variables
 df.inla <- mf.df %>% 
@@ -61,7 +64,7 @@ df.inla <- df.inla %>%
 Panama.ind = which(df.inla$Country=="Panama")
 Panama.slope = (df.inla$observed[Panama.ind[6]]-df.inla$observed[Panama.ind[3]])/(6-3)
 new.Panama.month3and4 = c(sum(df.inla$observed[Panama.ind[4:5]])/2-Panama.slope/2,sum(df.inla$observed[Panama.ind[4:5]])/2+Panama.slope/2)
-df.inla$observed[Panama.ind[4:5]]= new.Panama.month3and4
+df.inla$observed[Panama.ind[4:5]]= as.integer(new.Panama.month3and4)
 
 
 
@@ -136,7 +139,7 @@ INLA.estimates.sampling <- function(poisson.pred,mod,
   
     
     # sample of num_inla_samps from posterior
-    sample.df <- INLA::inla.posterior.sample(num_inla_samps,poisson.pred)
+    sample.df <- INLA::inla.posterior.sample(num_inla_samps,poisson.pred,seed = 25)
     
     # create dfs of Country, WHO Region, and months to merge in estimates with later
     excess.df.expec <- df.inla %>%
