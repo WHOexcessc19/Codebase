@@ -37,6 +37,7 @@ Note: If only interested in the excess model fitting and not the data processing
 * AnnualData_Estimates.R: Data processing and fitting of the annual data model for 2020 monthly ACM in Viet Nam, Grenada, Saint Kitts and Nevis, and Saint Vincent and the Grenadines, using annual ACM data for 2020.
 * Final_Sampling.R: The final combined sampling of the expecteds and ACM from the observed data country approach, subnational data and annual data country approaches, and the no ACM data covariate model approach.
 	* Warning: This may take a while. 
+* Germany_Sweden_Adjustment.R: Fits the adjusted models for expected mortality in Sweden and Germany 	(see "The WHO estimates of excess mortality associated with the COVID-19 pandemic" for details on why this adjustment is made).
 
 ## Contact
 
