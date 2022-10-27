@@ -298,11 +298,11 @@ acm_summarized = cbind(acm[,1:3],est=rowMeans(acm[,4:(num_inla_samps+3)]),
                        uppr=apply(acm[,4:(num_inla_samps+3)],1,quantile,0.975))
 
 ### Write Estimates Full Sample DFs and Summarized Estimate DFs to csv
-write.csv(excess, file="Generated_Data/excess.csv", row.names=FALSE)
-write.csv(expected, file="Generated_Data/expected.csv", row.names=FALSE)
-write.csv(acm, file="Generated_Data/acm.csv", row.names=FALSE)
+write.csv(excess, file="../Generated_Data/excess.csv", row.names=FALSE)
+write.csv(expected, file="../Generated_Data/expected.csv", row.names=FALSE)
+write.csv(acm, file="../Generated_Data/acm.csv", row.names=FALSE)
 
-write.csv(excess_summarized, file="Generated_Data/excess_summarized.csv", row.names=FALSE)
-write.csv(expected_summarized, file="Generated_Data/expected_summarized.csv", row.names=FALSE)
-write.csv(acm_summarized, file="Generated_Data/acm_summarized.csv", row.names=FALSE)
+write.csv(excess_summarized, file="../Generated_Data/excess_summarized.csv", row.names=FALSE)
+write.csv(expected_summarized, file="../Generated_Data/expected_summarized.csv", row.names=FALSE)
+write.csv(acm_summarized, file="../Generated_Data/acm_summarized.csv", row.names=FALSE)
 
